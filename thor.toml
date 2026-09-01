@@ -1,0 +1,11 @@
+name         = "test"
+version      = "0.1.0"
+out          = "build/"
+entry        = "src/main.zp"
+
+compiler = "tools/zapc-no-pie"
+# optimization = "O0"
+# flags     = ""
+
+# [imports]
+# "@utils" = "./src/utils"

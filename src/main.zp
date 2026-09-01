@@ -1,0 +1,58 @@
+import "std/io";
+import "yaml";
+
+fun main() Int {
+    let src = "name: Daniel\n" +
+        "role: developer\n" +
+        "active: true\n" +
+        "score: 4.5\n" +
+        "bio: \"line one\\nline two\"\n" +
+        "tags:\n" +
+        "  - zig\n" +
+        "  - rust\n" +
+        "  - 'zap'\n" +
+        "address:\n" +
+        "  city: Nowhere\n" +
+        "  zip: 12345\n" +
+        "friends:\n" +
+        "  - name: Alice\n" +
+        "    age: 30\n" +
+        "  - name: Bob\n" +
+        "    age: 25\n";
+
+    let doc = yaml.parseYaml(src) or err {
+        io.println("failed to parse: " + err.message);
+        return 1;
+    };
+
+    let root = doc.getRoot().asMapping() or err {
+        io.println("expected the document root to be a mapping");
+        return 1;
+    };
+
+    io.println(root.getString("name") or err { "?" });
+    io.printBool(root.getBool("active") or err { false });
+
+    let tags = root.getSequence("tags") or err { io.println("no tags"); return 1; };
+    var i: Int = 0;
+    while i < tags.len() {
+        io.println(tags.getString(i) or err { "?" });
+        i = i + 1;
+    }
+
+    let address = root.getMapping("address") or err { io.println("no address"); return 1; };
+    io.println(address.getString("city") or err { "?" });
+    io.printInt(address.getInt("zip") or err { -1 });
+
+    let friends = root.getSequence("friends") or err { io.println("no friends"); return 1; };
+    var j: Int = 0;
+    while j < friends.len() {
+        let friend = friends.at(j) or err { io.println("bad friend entry"); return 1; };
+        let friendMap = friend.asMapping() or err { io.println("friend entry is not a mapping"); return 1; };
+        io.println(friendMap.getString("name") or err { "?" });
+        io.printInt(friendMap.getInt("age") or err { -1 });
+        j = j + 1;
+    }
+
+    return 0;
+}
